@@ -123,23 +123,35 @@
      "modulos": [
       {
        "nombre": "Módulo 1",
+       "titulo": "Docencia en la Universidad de Los Lagos",
        "inicio": "2026-08-17",
-       "fin": "2026-09-13"
+       "fin": "2026-09-13",
+       "relator": "Marta Ríos y María Paz Bassenge",
+       "correo": ""
       },
       {
        "nombre": "Módulo 2",
+       "titulo": "Docencia centrada en el estudiantado",
        "inicio": "2026-09-21",
-       "fin": "2026-10-18"
+       "fin": "2026-10-18",
+       "relator": "",
+       "correo": ""
       },
       {
        "nombre": "Módulo 3",
+       "titulo": "Gestión de aulas diversas",
        "inicio": "2026-10-19",
-       "fin": "2026-11-15"
+       "fin": "2026-11-15",
+       "relator": "Catalina Montenegro González y Cristofer Cárcamo Catrilef",
+       "correo": ""
       },
       {
        "nombre": "Módulo 4",
+       "titulo": "Evaluación y retroalimentación para el aprendizaje",
        "inicio": "2026-11-16",
-       "fin": "2026-12-13"
+       "fin": "2026-12-13",
+       "relator": "",
+       "correo": ""
       }
      ],
      "sesiones": [
@@ -230,23 +242,35 @@
      "modulos": [
       {
        "nombre": "Módulo 1",
+       "titulo": "Innovación en la docencia universitaria",
        "inicio": "2026-08-17",
-       "fin": "2026-09-13"
+       "fin": "2026-09-13",
+       "relator": "Francisco Silva Díaz",
+       "correo": "francisco.silvadiaz@ulagos.cl"
       },
       {
        "nombre": "Módulo 2",
+       "titulo": "IA en la práctica docente",
        "inicio": "2026-09-21",
-       "fin": "2026-10-18"
+       "fin": "2026-10-18",
+       "relator": "Cristián Sepúlveda Irribarra",
+       "correo": "cristian.sepulvedairribarra@ulagos.cl"
       },
       {
        "nombre": "Módulo 3",
+       "titulo": "Aprendizaje mediado por tecnología",
        "inicio": "2026-10-26",
-       "fin": "2026-11-22"
+       "fin": "2026-11-22",
+       "relator": "Hugo Tapia Silva",
+       "correo": "hugo.tapiasilva@ulagos.cl"
       },
       {
        "nombre": "Módulo 4",
+       "titulo": "Herramientas digitales para la evaluación",
        "inicio": "2026-11-23",
-       "fin": "2026-12-20"
+       "fin": "2026-12-20",
+       "relator": "Ana Henríquez Orrego",
+       "correo": "ana.henriquezorrego@ulagos.cl"
       }
      ],
      "sesiones": [
@@ -258,7 +282,6 @@
       "2026-09-30",
       "2026-10-07",
       "2026-10-14",
-      "2026-10-21",
       "2026-10-28",
       "2026-11-04",
       "2026-11-11",
@@ -284,23 +307,35 @@
      "modulos": [
       {
        "nombre": "Módulo 1",
+       "titulo": "Fundamentos del SoTL y de la innovación educativa",
        "inicio": "2026-08-17",
-       "fin": "2026-09-13"
+       "fin": "2026-09-13",
+       "relator": "Carla Gajardo Poblete",
+       "correo": "carla.gajardo@udp.cl"
       },
       {
        "nombre": "Módulo 2",
+       "titulo": "Investigación sobre la práctica docente",
        "inicio": "2026-09-21",
-       "fin": "2026-10-18"
+       "fin": "2026-10-18",
+       "relator": "Fernando Muñoz Sepúlveda",
+       "correo": "fernando.munozsepulveda@ulagos.cl"
       },
       {
        "nombre": "Módulo 3",
-       "inicio": "2026-11-02",
-       "fin": "2026-11-22"
+       "titulo": "Reflexión a partir de las evidencias y diseño de proyectos de investigación",
+       "inicio": "2026-10-19",
+       "fin": "2026-11-22",
+       "relator": "Francisco Gallegos Celis",
+       "correo": "francisco.gallegoscelis@ulagos.cl"
       },
       {
        "nombre": "Módulo 4",
+       "titulo": "Transformación y divulgación de resultados de la investigación",
        "inicio": "2026-11-23",
-       "fin": "2026-12-20"
+       "fin": "2026-12-20",
+       "relator": "Cristian Ferrada Ferrada",
+       "correo": "cristian.ferrada@ulagos.cl"
       }
      ],
      "sesiones": [
@@ -329,29 +364,41 @@
      "modulos": [
       {
        "nombre": "Módulo 1",
+       "titulo": "Innovación en la docencia universitaria",
        "inicio": "2026-09-21",
-       "fin": "2026-10-18"
+       "fin": "2026-10-18",
+       "relator": "Francisco Silva Díaz",
+       "correo": "francisco.silvadiaz@ulagos.cl"
       },
       {
        "nombre": "Módulo 2",
+       "titulo": "Inteligencia Artificial en la práctica docente",
        "inicio": "2026-10-19",
-       "fin": "2026-11-15"
+       "fin": "2026-11-15",
+       "relator": "Cristián Sepúlveda Irribarra",
+       "correo": "cristian.sepulvedairribarra@ulagos.cl"
       },
       {
        "nombre": "Módulo 3",
+       "titulo": "Aprendizaje mediado por tecnología",
        "inicio": "2026-11-16",
-       "fin": "2026-12-13"
+       "fin": "2026-12-13",
+       "relator": "Hugo Tapia Silva",
+       "correo": "hugo.tapiasilva@ulagos.cl"
       },
       {
        "nombre": "Módulo 4",
+       "titulo": "Herramientas digitales para la evaluación",
        "inicio": "2027-01-04",
-       "fin": "2027-01-31"
+       "fin": "2027-01-31",
+       "relator": "Ana Henríquez Orrego",
+       "correo": "ana.henriquezorrego@ulagos.cl"
       }
      ],
      "sesiones": [
       "2026-09-23",
       "2026-09-30",
-      "2026-10-07",
+      "2026-10-08",
       "2026-10-14",
       "2026-10-21",
       "2026-10-28",
@@ -485,6 +532,11 @@
    "nombre": "Fiestas Patrias",
    "inicio": "2026-09-14",
    "fin": "2026-09-20"
+  },
+  {
+   "nombre": "Receso fin de año",
+   "inicio": "2026-12-21",
+   "fin": "2027-01-03"
   }
  ]
 }

@@ -70,6 +70,19 @@ th.add{width:64px;min-width:64px;border-left:1px solid var(--soft)}
 .plus:hover{border-color:var(--accent);color:var(--accent)}
 td.addc{border-left:1px solid var(--soft)}
 /* day panel */
+td.pc.clk{cursor:pointer}
+td.pc.clk:hover .bar{filter:brightness(.96)}
+#modp{position:fixed;width:300px;background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:0 14px 36px rgba(20,30,50,.16);padding:16px 18px 14px;display:none;z-index:45;border-top:4px solid var(--mc,#999)}
+#modp .k{font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--mc)}
+#modp h3{font-family:'Fraunces',serif;font-size:17px;font-weight:600;margin:4px 0 2px;line-height:1.25}
+#modp .dt{color:var(--muted);font-size:12.5px;margin-bottom:12px}
+#modp .rel{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-top:1px solid var(--soft)}
+#modp .rel .av{width:30px;height:30px;border-radius:50%;background:var(--soft);display:grid;place-items:center;flex:none;color:var(--muted)}
+#modp .rel b{display:block;font-size:13.5px;font-weight:600}
+#modp .rel a{font-size:12.5px;color:var(--accent);text-decoration:none;word-break:break-all}
+#modp .rel button{border:0;background:none;color:var(--muted);font-size:11.5px;padding:2px 0;margin-left:6px}
+#modp .ss{font-size:12px;color:var(--muted);border-top:1px solid var(--soft);padding-top:9px}
+#modp .x{position:absolute;right:10px;top:8px;border:0;background:none;font-size:18px;color:var(--muted)}
 #dayp{position:fixed;right:20px;bottom:20px;width:300px;background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:0 12px 32px rgba(20,30,50,.14);padding:14px 16px;display:none;z-index:40}
 #dayp h3{margin:0 0 8px;font-family:'Fraunces',serif;font-size:16px}
 #dayp .it{display:flex;gap:8px;align-items:flex-start;padding:6px 0;border-top:1px solid var(--soft);font-size:13px}
@@ -98,6 +111,9 @@ input:focus,select:focus{outline:2px solid #C8D6E8;border-color:#8FA9C9}
 .dates span{background:var(--soft);border-radius:999px;padding:3px 8px 3px 10px;font-size:12px;display:inline-flex;gap:6px;align-items:center}
 .dates span b{cursor:pointer;color:var(--muted);font-weight:400}
 .mrow{display:grid;grid-template-columns:1.2fr 1fr 1fr 28px;gap:6px;margin-bottom:6px}
+.mbox{border:1px solid var(--soft);border-radius:12px;padding:8px;margin-bottom:8px}
+.mrow2{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.mrow2 .t{grid-column:1/-1}
 .btn{padding:9px 16px;border-radius:10px;border:1px solid var(--line);background:var(--panel);font-weight:600}
 .btn.p{background:var(--accent);color:#fff;border-color:var(--accent)}
 .btn.dng{color:var(--fer);border-color:#F1C6C6}
@@ -135,6 +151,7 @@ th.prog.hid .h,td.pc.hid{opacity:.35}
 </header>
 <main><div class="board" id="board"></div></main>
 
+<div id="modp"><button class="x" onclick="modp.style.display='none'">×</button><div id="modc"></div></div>
 <div id="dayp"><button class="x" onclick="dayp.style.display='none'">×</button><h3 id="dayt"></h3><div id="dayc"></div></div>
 
 
@@ -239,27 +256,47 @@ function render(){ if(!state) return;
     days.forEach((d,k)=>{const s=iso(d);const dots=(ses[s]||[]).map(c=>`<i style="background:${c}"></i>`).join('');
       h+=`<td class="day ${k>4?'we':''} ${fer[s]?'fer':''}" data-d="${s}" title="${fer[s]||''}"><span class="n">${d.getDate()}</span><span class="dots">${dots}</span></td>`});
     h+=`<td class="sep"></td><td class="hito">${rec?rec.nombre:(ferW.length?ferW.map(x=>fer[x]).join(' · '):'')}</td>`;
-    vis.forEach(({p})=>{
+    vis.forEach(({p,i:pi})=>{
       let cell='';const hc=p.visible===false?'hid':'';
-      for(const c of p.cohortes){
+      let attr='';
+      for(const [ci,c] of p.cohortes.entries()){
         if(c.inicio<=wE && c.cierre>=wS){
           const first=c.inicio>=wS, last=c.cierre<=wE;
           const mod=(c.modulos||[]).find(md=>md.inicio>=wS&&md.inicio<=wE);
-          const inMod=(c.modulos||[]).find(md=>md.inicio<=wE&&md.fin>=wS);
+          const mi=(c.modulos||[]).findIndex(md=>md.inicio<=wE&&md.fin>=wS);const inMod=mi>=0?c.modulos[mi]:null;
+          if(inMod) attr=` data-p="${pi}" data-c="${ci}" data-m="${mi}"`;
           const a = inMod? .30 : .14;
           cell=`<div class="bar ${first?'first':''} ${last?'last':''} ${mod&&!first?'mstart':''}" style="background:${tint(p.color,a)}"></div>`+
             `<div class="lab" style="color:${p.color}">${first?`<small>${c.cohorte}</small>`:''}${mod?mod.nombre:''}${last&&!mod?'<small>cierre</small>':''}</div>`;
           break;
         }
       }
-      h+=`<td class="pc ${hc}">${cell}</td>`;
+      h+=`<td class="pc ${hc} ${attr?'clk':''}"${attr}>${cell}</td>`;
     });
     h+=`<td class="addc"></td></tr>`;
   });
   h+='</tbody></table>';
   $('board').innerHTML=h;
   document.querySelectorAll('td.day').forEach(td=>td.onclick=()=>showDay(td));
+  document.querySelectorAll('td.pc.clk').forEach(td=>td.onclick=e=>showMod(td,e));
 }
+function fmtD(s){const d=parse(s);return `${d.getDate()} ${MESES[d.getMonth()].toLowerCase()}`}
+function esc(t){return String(t||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+function showMod(td,e){
+  const p=state.programas[+td.dataset.p],c=p.cohortes[+td.dataset.c],m=c.modulos[+td.dataset.m];
+  const ses=c.sesiones.filter(s=>s>=m.inicio&&s<=m.fin);
+  const correos=(m.correo||'').split(/[;,]\s*/).filter(Boolean);
+  const rels=(m.relator||'').split(/\s+y\s+|;\s*/).filter(Boolean);
+  const relHtml=rels.length?rels.map((r,k)=>`<div class="rel"><span class="av"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg></span><div><b>${esc(r)}</b>${correos[k]?`<a href="mailto:${esc(correos[k])}">${esc(correos[k])}</a><button onclick="navigator.clipboard.writeText('${esc(correos[k])}');toast('Correo copiado')">copiar</button>`:'<span style="font-size:12px;color:var(--muted)">sin correo registrado</span>'}</div></div>`).join('')
+    :'<div class="rel" style="color:var(--muted);font-size:12.5px">Sin relator registrado</div>';
+  $('modc').innerHTML=`<div class="k">${esc(p.sigla)} · ${esc(c.cohorte)} · ${esc(m.nombre)}</div><h3>${esc(m.titulo||m.nombre)}</h3><div class="dt">${fmtD(m.inicio)} – ${fmtD(m.fin)}</div>${relHtml}<div class="ss">${ses.length?'Sesiones: '+ses.map(fmtD).join(' · '):'Sin sesiones sincrónicas registradas'}</div>`;
+  const mp=$('modp');mp.style.setProperty('--mc',p.color);mp.style.display='block';
+  const w=300,hgt=mp.offsetHeight;let x=e.clientX+14,y=e.clientY-20;
+  if(x+w>innerWidth-12)x=e.clientX-w-14; if(x<12)x=12; if(y+hgt>innerHeight-12)y=innerHeight-hgt-12; if(y<12)y=12;
+  mp.style.left=x+'px';mp.style.top=y+'px';e.stopPropagation();
+}
+document.addEventListener('click',e=>{const mp=$('modp');if(mp.style.display==='block'&&!mp.contains(e.target))mp.style.display='none'});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){$('modp').style.display='none';$('dayp').style.display='none'}});
 function showDay(td){
   document.querySelectorAll('td.day.sel').forEach(x=>x.classList.remove('sel'));td.classList.add('sel');
   const s=td.dataset.d,d=parse(s);const fer=state.feriados.find(f=>f.fecha===s);
@@ -298,7 +335,7 @@ function openProg(i){
   drawDates();drawMods();$('progov').classList.add('show');
 }
 function drawDates(){fdates.sort();$('fdates').innerHTML=fdates.map((s,k)=>{const d=parse(s);return `<span>${DIAS[(d.getDay()+6)%7]} ${d.getDate()} ${MESES[d.getMonth()]}<b onclick="fdates.splice(${k},1);drawDates()">×</b></span>`}).join('')||'<span style="background:none;color:var(--muted);padding:0">Aún no hay sesiones.</span>'}
-function drawMods(){$('fmods').innerHTML=fmods.map((m,k)=>`<div class="mrow"><input value="${m.nombre}" oninput="fmods[${k}].nombre=this.value"><input type="date" value="${m.inicio}" oninput="fmods[${k}].inicio=this.value"><input type="date" value="${m.fin}" oninput="fmods[${k}].fin=this.value"><button class="btn sm" onclick="fmods.splice(${k},1);drawMods()">×</button></div>`).join('')}
+function drawMods(){$('fmods').innerHTML=fmods.map((m,k)=>`<div class="mbox"><div class="mrow"><input value="${esc(m.nombre)}" oninput="fmods[${k}].nombre=this.value"><input type="date" value="${m.inicio}" oninput="fmods[${k}].inicio=this.value"><input type="date" value="${m.fin}" oninput="fmods[${k}].fin=this.value"><button class="btn sm" onclick="fmods.splice(${k},1);drawMods()">×</button></div><div class="mrow2"><input class="t" placeholder="Nombre del módulo" value="${esc(m.titulo)}" oninput="fmods[${k}].titulo=this.value"><input placeholder="Relator(a)" value="${esc(m.relator)}" oninput="fmods[${k}].relator=this.value"><input placeholder="Correo" value="${esc(m.correo)}" oninput="fmods[${k}].correo=this.value"></div></div>`).join('')}
 $('gen').onclick=()=>{const a=$('fi').value,b=$('ff').value;if(!a||!b)return toast('Primero indica inicio y cierre');
   const wk=[...document.querySelectorAll('#fwk input:checked')].map(x=>+x.value);if(!wk.length)return toast('Marca al menos un día');
   const fr=+$('ffr').value;const fer=new Set(state.feriados.map(f=>f.fecha));let s=parse(a);s=add(s,-((s.getDay()+6)%7));let wn=0;let skipped=0;
