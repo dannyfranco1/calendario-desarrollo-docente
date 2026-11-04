@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Calendario Desarrollo Docente</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F6F3EE; --panel:#FFFFFF; --ink:#1F2430; --muted:#6B7180; --line:#E6E1D8; --soft:#F1EDE6;
+  --fer:#D64545; --ferbg:#FCECEC; --rec:#EEF2F7; --today:#FFF6D6; --accent:#1F3A5F;
+  --cellw:38px; --rowh:46px; --progw:132px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:'DM Sans',system-ui,sans-serif;font-size:14px}
+button{font:inherit;cursor:pointer}
+header{position:sticky;top:0;z-index:30;background:var(--bg);padding:16px 20px 10px;border-bottom:1px solid var(--line)}
+.top{display:flex;align-items:center;gap:12px}
+.top h1{font-family:'Fraunces',serif;font-weight:600;font-size:22px;margin:0;letter-spacing:-.01em}
+.top .sub{color:var(--muted);font-size:13px}
+.spacer{flex:1}
+.yr{display:flex;align-items:center;gap:4px;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:3px}
+.yr button{border:0;background:none;width:28px;height:28px;border-radius:50%;color:var(--muted)}
+.yr button:hover{background:var(--soft)}
+.yr b{padding:0 6px}
+.lock{width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--panel);display:grid;place-items:center;color:var(--accent)}
+.lock.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+.legend{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;background:var(--panel);border:1px solid var(--line);font-size:12.5px;font-weight:500}
+.chip i{width:9px;height:9px;border-radius:50%;display:inline-block}
+.chip.off{opacity:.4}
+.chip.fer i{background:var(--fer)} .chip.rec i{background:#9FB3CC}
+main{padding:14px 20px 40px}
+.board{background:var(--panel);border:1px solid var(--line);border-radius:16px;overflow:auto;max-height:calc(100vh - 110px);box-shadow:0 1px 2px rgba(0,0,0,.03)}
+table{border-collapse:separate;border-spacing:0;min-width:100%}
+thead th{position:sticky;top:0;z-index:10;background:var(--panel);font-weight:600;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;height:44px;border-bottom:1px solid var(--line)}
+th.mes,td.mes{position:sticky;left:0;z-index:5;background:var(--panel);width:58px;min-width:58px}
+thead th.mes{z-index:12}
+td{height:var(--rowh);border-bottom:1px solid var(--soft);padding:0}
+td.mes{font-family:'Fraunces',serif;font-weight:600;font-size:14px;color:var(--accent);vertical-align:top;padding:8px 0 0 12px;border-right:1px solid var(--line)}
+td.day{width:var(--cellw);min-width:var(--cellw);text-align:center;vertical-align:middle;position:relative}
+td.day .n{display:block;font-size:13px;font-variant-numeric:tabular-nums;line-height:1}
+td.day .dots{display:flex;gap:2px;justify-content:center;margin-top:5px;height:7px}
+td.day .dots i{width:7px;height:7px;border-radius:50%}
+td.day.we .n{color:#A3A7B0}
+td.day.out .n{color:#C9CCD2}
+td.day.fer{background:var(--ferbg)} td.day.fer .n{color:var(--fer);font-weight:700}
+td.day{cursor:pointer} td.day:hover{background:var(--soft)}
+td.day.sel{outline:2px solid var(--accent);outline-offset:-2px;border-radius:8px}
+td.sep{width:10px;min-width:10px;border-right:1px solid var(--line)}
+td.hito{width:118px;min-width:118px;font-size:11.5px;color:#56708F;padding:0 8px;border-right:1px solid var(--line)}
+tr.rec td.day,tr.rec td.hito{background:var(--rec)}
+tr.today td{background:var(--today)!important}
+tr.today td.mes::after{content:'hoy';display:block;font-family:'DM Sans';font-size:10px;font-weight:700;color:#B58A00;text-transform:uppercase;margin-top:2px}
+th.prog{width:var(--progw);min-width:var(--progw);padding:0 6px;text-transform:none;letter-spacing:0;font-size:13px;color:var(--ink);border-left:1px solid var(--soft)}
+th.prog .h{display:flex;align-items:center;gap:5px;justify-content:center;white-space:nowrap}
+th.prog .h i{width:10px;height:10px;border-radius:3px}
+th.prog .ed{display:none;border:0;background:none;color:var(--muted);padding:2px}
+body.edit th.prog .ed{display:inline-block}
+td.pc{border-left:1px solid var(--soft);padding:0 6px;position:relative}
+.bar{position:absolute;inset:0 10px;border-radius:0}
+.bar.first{top:6px;border-top-left-radius:10px;border-top-right-radius:10px}
+.bar.last{bottom:6px;border-bottom-left-radius:10px;border-bottom-right-radius:10px}
+.bar.mstart{border-top:2px solid rgba(255,255,255,.9)}
+.lab{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;font-size:11.5px;font-weight:600;line-height:1.15;text-align:center}
+.lab small{font-weight:500;opacity:.75;font-size:10.5px}
+th.add{width:64px;min-width:64px;border-left:1px solid var(--soft)}
+.plus{width:34px;height:34px;border-radius:10px;border:1.5px dashed #B9B2A6;background:none;color:var(--muted);font-size:20px;line-height:1}
+.plus:hover{border-color:var(--accent);color:var(--accent)}
+td.addc{border-left:1px solid var(--soft)}
+/* day panel */
+#dayp{position:fixed;right:20px;bottom:20px;width:300px;background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:0 12px 32px rgba(20,30,50,.14);padding:14px 16px;display:none;z-index:40}
+#dayp h3{margin:0 0 8px;font-family:'Fraunces',serif;font-size:16px}
+#dayp .it{display:flex;gap:8px;align-items:flex-start;padding:6px 0;border-top:1px solid var(--soft);font-size:13px}
+#dayp .it i{width:9px;height:9px;border-radius:50%;margin-top:5px;flex:none}
+#dayp .x{position:absolute;right:10px;top:8px;border:0;background:none;font-size:18px;color:var(--muted)}
+/* modal */
+.ov{position:fixed;inset:0;background:rgba(25,30,40,.38);display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
+.ov.show{display:flex}
+.modal{background:var(--panel);border-radius:18px;width:min(560px,100%);max-height:calc(100vh - 32px);overflow:auto;padding:22px 24px;box-shadow:0 24px 60px rgba(0,0,0,.2)}
+.modal h2{font-family:'Fraunces',serif;font-weight:600;margin:0 0 4px;font-size:20px}
+.modal p.d{margin:0 0 16px;color:var(--muted);font-size:13px}
+.f{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.f .full{grid-column:1/-1}
+label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:5px}
+input,select{width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:10px;font:inherit;background:#FCFBF9;color:var(--ink)}
+input:focus,select:focus{outline:2px solid #C8D6E8;border-color:#8FA9C9}
+.sw{display:flex;gap:8px;flex-wrap:wrap}
+.sw button{width:26px;height:26px;border-radius:50%;border:2px solid transparent}
+.sw button.on{border-color:var(--ink);box-shadow:inset 0 0 0 2px #fff}
+.wk{display:flex;gap:6px;flex-wrap:wrap}
+.wk label{margin:0;display:inline-flex;align-items:center;gap:4px;padding:6px 10px;border:1px solid var(--line);border-radius:999px;font-weight:500;color:var(--ink);cursor:pointer}
+.wk input{width:auto}
+.sec{margin-top:18px;padding-top:14px;border-top:1px solid var(--soft)}
+.sec h4{margin:0 0 10px;font-size:13px}
+.dates{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px}
+.dates span{background:var(--soft);border-radius:999px;padding:3px 8px 3px 10px;font-size:12px;display:inline-flex;gap:6px;align-items:center}
+.dates span b{cursor:pointer;color:var(--muted);font-weight:400}
+.mrow{display:grid;grid-template-columns:1.2fr 1fr 1fr 28px;gap:6px;margin-bottom:6px}
+.btn{padding:9px 16px;border-radius:10px;border:1px solid var(--line);background:var(--panel);font-weight:600}
+.btn.p{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn.dng{color:var(--fer);border-color:#F1C6C6}
+.btn.sm{padding:6px 10px;font-size:12.5px}
+.act{display:flex;gap:8px;justify-content:flex-end;margin-top:20px}
+.act .l{margin-right:auto}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:10px;font-size:13px;display:none;z-index:60}
+.demo{font-size:11.5px;background:#FFF3C4;color:#7A5B00;border-radius:999px;padding:3px 10px;font-weight:600}
+.saving{font-size:12px;color:var(--muted)}
+.out{display:none;border:1px solid var(--line);background:var(--panel);border-radius:10px;padding:8px 12px;color:var(--muted);font-size:13px}
+body.edit .out{display:inline-block}
+th.prog .eye{display:none;border:0;background:none;color:var(--muted);padding:2px;line-height:0}
+body.edit th.prog .eye{display:inline-block}
+th.prog.hid .h,td.pc.hid{opacity:.35}
+#gate{position:fixed;inset:0;background:var(--bg);display:none;align-items:center;justify-content:center;z-index:70;padding:16px}
+#gate .card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:28px;width:min(380px,100%);box-shadow:0 12px 40px rgba(20,30,50,.08)}
+#gate h1{font-family:'Fraunces',serif;font-weight:600;font-size:22px;margin:0 0 6px}
+#gate p{color:var(--muted);margin:0 0 18px;font-size:13px}
+.err{color:var(--fer);font-size:12.5px;min-height:18px;margin-top:8px}
+@media (max-width:640px){header{padding:12px 16px 8px} main{padding:10px 16px 30px} .top .sub{display:none} .top h1{font-size:18px} :root{--progw:110px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="top">
+    <h1>Calendario Desarrollo Docente</h1>
+    <span class="saving" id="saving"></span>
+    <div class="spacer"></div>
+    <div class="yr"><button id="yp" aria-label="Año anterior">‹</button><b id="yl">2026</b><button id="yn" aria-label="Año siguiente">›</button></div>
+    <button class="out" id="outb" title="Cerrar sesión">Salir</button>
+    <button class="lock" id="lockb" title="Modo edición" aria-label="Modo edición">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path id="shackle" d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+    </button>
+  </div>
+</header>
+<main><div class="board" id="board"></div></main>
+
+<div id="dayp"><button class="x" onclick="dayp.style.display='none'">×</button><h3 id="dayt"></h3><div id="dayc"></div></div>
+
+
+<div class="ov" id="progov"><div class="modal">
+  <h2 id="pt">Nuevo programa</h2><p class="d" id="pd">Diplomado, curso, taller o cualquier plan de formación.</p>
+  <div class="f">
+    <div><label>Sigla</label><input id="fs" placeholder="Ej. DDES"></div>
+    <div><label>Cohorte</label><input id="fc" placeholder="Ej. 2027-1"></div>
+    <div class="full"><label>Nombre completo</label><input id="fn" placeholder="Ej. Diplomado en Docencia en Educación Superior"></div>
+    <div class="full"><label>Color</label><div class="sw" id="fsw"></div></div>
+    <div><label>Fecha de inicio</label><input type="date" id="fi"></div>
+    <div><label>Fecha de cierre</label><input type="date" id="ff"></div>
+  </div>
+  <div class="sec"><h4>Sesiones sincrónicas</h4>
+    <div class="wk" id="fwk"></div>
+    <div style="display:flex;gap:8px;margin-top:10px;align-items:center;flex-wrap:wrap">
+      <select id="ffr" style="width:auto"><option value="1">Cada semana</option><option value="2">Cada 2 semanas</option></select>
+      <button class="btn sm" id="gen">Generar fechas</button>
+      <span style="color:var(--muted);font-size:12px">o agrega una suelta:</span>
+      <input type="date" id="f1" style="width:auto"><button class="btn sm" id="add1">+</button>
+    </div>
+    <div class="dates" id="fdates"></div>
+  </div>
+  <div class="sec"><h4>Módulos <span style="font-weight:400;color:var(--muted)">(opcional)</span></h4>
+    <div id="fmods"></div><button class="btn sm" id="addm">+ Módulo</button>
+  </div>
+  <div class="act"><button class="btn dng l" id="delb" style="display:none">Eliminar</button><button class="btn" onclick="closeOv('progov')">Cancelar</button><button class="btn p" id="saveb">Guardar</button></div>
+</div></div>
+<div class="toast" id="toast"></div>
+<div id="gate"><form class="card" id="gatef">
+  <h1>Calendario Desarrollo Docente</h1><p>Ingresa con tu usuario y contraseña.</p>
+  <label>Usuario</label><input id="lu" autocomplete="username" required>
+  <div style="height:10px"></div>
+  <label>Contraseña</label><input id="lp" type="password" autocomplete="current-password" required>
+  <div class="err" id="lerr"></div>
+  <div class="act" style="margin-top:8px"><button class="btn p" type="submit" style="width:100%">Entrar</button></div>
+</form></div>
+
+<script>
+const PALETTE=['#2BA39A','#E8845C','#8B6CC7','#6E9B3A','#3D8BE0','#4A55A8','#D4A017','#C9507A','#5B8C8C','#8A6A4F'];
+const MESES=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+const MESL=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+const DIAS=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+const DIASL=['lunes','martes','miércoles','jueves','viernes','sábado','domingo'];
+let state=null; let year=new Date().getFullYear(); if(new Date().getMonth()<2) year--; let editing=false;
+const iso=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const parse=s=>{const[a,b,c]=s.split('-').map(Number);return new Date(a,b-1,c)};
+const add=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x};
+const tint=(hex,a)=>{const n=parseInt(hex.slice(1),16);const r=n>>16,g=n>>8&255,b=n&255;return `rgba(${r},${g},${b},${a})`};
+const $=id=>document.getElementById(id);
+const TODAY=iso(new Date());
+async function load(){
+  const r=await fetch('/api/data',{cache:'no-store'});
+  if(r.status===401){$('gate').style.display='flex';$('lu').focus();return}
+  const j=await r.json(); if(!r.ok){toast('Error: '+(j.error||r.status));return}
+  state=j.data; state.programas.forEach(p=>{if(p.visible===undefined)p.visible=true});
+  $('gate').style.display='none'; render();
+  const tr=$('todayrow');if(tr){$('board').scrollTop=tr.offsetTop-160}
+}
+async function save(msg){
+  $('saving').textContent='Guardando…';
+  try{const r=await fetch('/api/data',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({data:state})});
+    const j=await r.json(); if(r.status===401){$('gate').style.display='flex';return}
+    if(!r.ok) throw new Error(j.error||r.status);
+    $('saving').textContent='Guardado'; if(msg) toast(msg); setTimeout(()=>$('saving').textContent='',2000)}
+  catch(e){$('saving').textContent='';toast('No se pudo guardar: '+e.message)}
+}
+$('gatef').onsubmit=async e=>{e.preventDefault();$('lerr').textContent='';
+  const r=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user:$('lu').value,password:$('lp').value})});
+  const j=await r.json().catch(()=>({}));
+  if(r.ok){$('lp').value='';load()} else $('lerr').textContent=j.error||'No se pudo entrar'};
+
+function weeks(){
+  // Monday on/before Mar 1 of year → last Monday before Feb 1 of next year (academic year view)
+  let s=parse(year+'-03-01'); s=add(s,-((s.getDay()+6)%7));
+  const end=parse((year+1)+'-01-31'); const out=[];
+  for(let d=s; d<=end; d=add(d,7)) out.push(d);
+  return out;
+}
+function render(){ if(!state) return;
+  $('yl').textContent=year;
+  const fer=Object.fromEntries(state.feriados.map(f=>[f.fecha,f.nombre]));
+  const progs=state.programas;
+  const vis=progs.map((p,i)=>({p,i})).filter(o=>editing||o.p.visible!==false);
+  // session map
+  const ses={};
+  vis.filter(o=>o.p.visible!==false).forEach(({p})=>p.cohortes.forEach(c=>c.sesiones.forEach(s=>(ses[s]=ses[s]||[]).push(p.color))));
+  let h=`<table><thead><tr><th class="mes">Mes</th>${DIAS.map(d=>`<th>${d}</th>`).join('')}<th class="sep"></th><th class="hito" style="text-align:left;padding-left:8px">Hitos</th>`+
+    vis.map(({p,i})=>`<th class="prog ${p.visible===false?'hid':''}" title="${p.nombre}"><div class="h"><button class="eye" onclick="toggleVis(${i})" title="${p.visible===false?'Mostrar':'Ocultar'} en la vista principal">${p.visible===false?'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.9 17.9A10.4 10.4 0 0 1 12 19C5 19 1 12 1 12a18.6 18.6 0 0 1 5.1-5.9M9.9 5.2A9.7 9.7 0 0 1 12 5c7 0 11 7 11 7a18.5 18.5 0 0 1-2.2 3.2M14.1 14.1a3 3 0 1 1-4.2-4.2"/><path d="M1 1l22 22"/></svg>':'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>'}</button><i style="background:${p.color}"></i>${p.sigla}<button class="ed" onclick="openProg(${i})" title="Editar">✎</button></div></th>`).join('')+
+    `<th class="add"><button class="plus" onclick="openProg(-1)" style="${editing?'':'display:none'}" title="Agregar programa">+</button></th></tr></thead><tbody>`;
+  let lastM=-1;
+  const W=weeks();
+  W.forEach((mon,wi)=>{
+    const days=[...Array(7)].map((_,k)=>add(mon,k));
+    const m=days.find(d=>d.getDate()===1)?days.find(d=>d.getDate()===1).getMonth():mon.getMonth();
+    const showM = m!==lastM; if(showM) lastM=m;
+    const wS=iso(mon), wE=iso(days[6]);
+    const rec=state.recesos.find(r=>r.inicio<=wE && r.fin>=wS);
+    const ferW=days.map(iso).filter(x=>fer[x]);
+    const isToday=TODAY>=wS&&TODAY<=wE;
+    h+=`<tr class="${rec?'rec':''} ${isToday?'today':''}" ${isToday?'id="todayrow"':''}><td class="mes">${showM?MESES[m]:''}</td>`;
+    days.forEach((d,k)=>{const s=iso(d);const dots=(ses[s]||[]).map(c=>`<i style="background:${c}"></i>`).join('');
+      h+=`<td class="day ${k>4?'we':''} ${fer[s]?'fer':''}" data-d="${s}" title="${fer[s]||''}"><span class="n">${d.getDate()}</span><span class="dots">${dots}</span></td>`});
+    h+=`<td class="sep"></td><td class="hito">${rec?rec.nombre:(ferW.length?ferW.map(x=>fer[x]).join(' · '):'')}</td>`;
+    vis.forEach(({p})=>{
+      let cell='';const hc=p.visible===false?'hid':'';
+      for(const c of p.cohortes){
+        if(c.inicio<=wE && c.cierre>=wS){
+          const first=c.inicio>=wS, last=c.cierre<=wE;
+          const mod=(c.modulos||[]).find(md=>md.inicio>=wS&&md.inicio<=wE);
+          const inMod=(c.modulos||[]).find(md=>md.inicio<=wE&&md.fin>=wS);
+          const a = inMod? .30 : .14;
+          cell=`<div class="bar ${first?'first':''} ${last?'last':''} ${mod&&!first?'mstart':''}" style="background:${tint(p.color,a)}"></div>`+
+            `<div class="lab" style="color:${p.color}">${first?`<small>${c.cohorte}</small>`:''}${mod?mod.nombre:''}${last&&!mod?'<small>cierre</small>':''}</div>`;
+          break;
+        }
+      }
+      h+=`<td class="pc ${hc}">${cell}</td>`;
+    });
+    h+=`<td class="addc"></td></tr>`;
+  });
+  h+='</tbody></table>';
+  $('board').innerHTML=h;
+  document.querySelectorAll('td.day').forEach(td=>td.onclick=()=>showDay(td));
+}
+function showDay(td){
+  document.querySelectorAll('td.day.sel').forEach(x=>x.classList.remove('sel'));td.classList.add('sel');
+  const s=td.dataset.d,d=parse(s);const fer=state.feriados.find(f=>f.fecha===s);
+  $('dayt').textContent=`${DIASL[(d.getDay()+6)%7]} ${d.getDate()} de ${MESL[d.getMonth()]}`;
+  let items=[];
+  if(fer) items.push(`<div class="it"><i style="background:var(--fer)"></i><div><b>Feriado</b><br>${fer.nombre}</div></div>`);
+  state.programas.forEach(p=>p.cohortes.forEach(c=>{
+    if(c.sesiones.includes(s)) items.push(`<div class="it"><i style="background:${p.color}"></i><div><b>${p.sigla} ${c.cohorte}</b> · sesión sincrónica<br><span style="color:var(--muted)">${p.nombre}</span></div></div>`);
+    else if(c.inicio<=s&&c.cierre>=s){const md=(c.modulos||[]).find(m=>m.inicio<=s&&m.fin>=s);
+      items.push(`<div class="it"><i style="background:${tint(p.color,.45)}"></i><div><b>${p.sigla} ${c.cohorte}</b>${md?' · '+md.nombre:''}<br><span style="color:var(--muted)">trabajo autónomo</span></div></div>`)}
+  }));
+  $('dayc').innerHTML=items.join('')||'<div class="it" style="color:var(--muted)">Sin actividades.</div>';
+  dayp.style.display='block';
+}
+// ---- edición
+function toast(t){const e=$('toast');e.textContent=t;e.style.display='block';clearTimeout(e._t);e._t=setTimeout(()=>e.style.display='none',2200)}
+function closeOv(id){$(id).classList.remove('show')}
+$('lockb').onclick=()=>{editing=!editing;document.body.classList.toggle('edit',editing);$('lockb').classList.toggle('on',editing);render();toast(editing?'Modo edición activo':'Modo edición cerrado')};
+$('outb').onclick=async()=>{await fetch('/api/logout',{method:'POST'});location.reload()};
+function toggleVis(i){const p=state.programas[i];p.visible=p.visible===false;render();save(p.visible?`${p.sigla} visible`:`${p.sigla} oculto en la vista principal`)}
+let cur=-1, fdates=[], fmods=[], fcolor=PALETTE[0];
+function openProg(i){
+  if(!editing)return;
+  cur=i; const p=i>=0?state.programas[i]:null; const c=p?p.cohortes[p.cohortes.length-1]:null;
+  $('pt').textContent=p?`Editar ${p.sigla}`:'Nuevo programa';
+  $('delb').textContent='Eliminar';delete $('delb').dataset.arm;
+  $('pd').textContent=p?'Edita la cohorte más reciente o cambia el nombre de la cohorte para crear una nueva.':'Diplomado, curso, taller o cualquier plan de formación.';
+  $('fs').value=p?p.sigla:''; $('fn').value=p?p.nombre:''; $('fc').value=c?c.cohorte:'';
+  $('fi').value=c?c.inicio:''; $('ff').value=c?c.cierre:'';
+  fdates=c?[...c.sesiones]:[]; fmods=c?JSON.parse(JSON.stringify(c.modulos||[])):[];
+  fcolor=p?p.color:PALETTE[state.programas.length%PALETTE.length];
+  $('fsw').innerHTML=PALETTE.map(x=>`<button style="background:${x}" class="${x===fcolor?'on':''}" data-c="${x}"></button>`).join('');
+  document.querySelectorAll('#fsw button').forEach(b=>b.onclick=()=>{fcolor=b.dataset.c;document.querySelectorAll('#fsw button').forEach(o=>o.classList.toggle('on',o===b))});
+  $('fwk').innerHTML=DIAS.slice(0,6).map((d,k)=>`<label><input type="checkbox" value="${k}">${d}</label>`).join('');
+  $('delb').style.display=p?'inline-block':'none';
+  drawDates();drawMods();$('progov').classList.add('show');
+}
+function drawDates(){fdates.sort();$('fdates').innerHTML=fdates.map((s,k)=>{const d=parse(s);return `<span>${DIAS[(d.getDay()+6)%7]} ${d.getDate()} ${MESES[d.getMonth()]}<b onclick="fdates.splice(${k},1);drawDates()">×</b></span>`}).join('')||'<span style="background:none;color:var(--muted);padding:0">Aún no hay sesiones.</span>'}
+function drawMods(){$('fmods').innerHTML=fmods.map((m,k)=>`<div class="mrow"><input value="${m.nombre}" oninput="fmods[${k}].nombre=this.value"><input type="date" value="${m.inicio}" oninput="fmods[${k}].inicio=this.value"><input type="date" value="${m.fin}" oninput="fmods[${k}].fin=this.value"><button class="btn sm" onclick="fmods.splice(${k},1);drawMods()">×</button></div>`).join('')}
+$('gen').onclick=()=>{const a=$('fi').value,b=$('ff').value;if(!a||!b)return toast('Primero indica inicio y cierre');
+  const wk=[...document.querySelectorAll('#fwk input:checked')].map(x=>+x.value);if(!wk.length)return toast('Marca al menos un día');
+  const fr=+$('ffr').value;const fer=new Set(state.feriados.map(f=>f.fecha));let s=parse(a);s=add(s,-((s.getDay()+6)%7));let wn=0;let skipped=0;
+  for(let m=s;m<=parse(b);m=add(m,7),wn++){ if(wn%fr) continue; wk.forEach(k=>{const d=iso(add(m,k));if(d>=a&&d<=b){ if(fer.has(d)) skipped++; else if(!fdates.includes(d)) fdates.push(d)}})}
+  drawDates();toast(skipped?`Fechas generadas. Se saltaron ${skipped} feriado(s).`:'Fechas generadas')};
+$('add1').onclick=()=>{const v=$('f1').value;if(v&&!fdates.includes(v)){fdates.push(v);drawDates()}};
+$('addm').onclick=()=>{fmods.push({nombre:'Módulo '+(fmods.length+1),inicio:$('fi').value||'',fin:''});drawMods()};
+$('saveb').onclick=()=>{
+  const sig=$('fs').value.trim(),coh=$('fc').value.trim(),a=$('fi').value,b=$('ff').value;
+  if(!sig||!coh||!a||!b) return toast('Completa sigla, cohorte, inicio y cierre');
+  const ch={cohorte:coh,inicio:a,cierre:b,sesiones:[...fdates],modulos:fmods.filter(m=>m.inicio&&m.fin)};
+  if(cur>=0){const p=state.programas[cur];p.sigla=sig;p.nombre=$('fn').value;p.color=fcolor;
+    const k=p.cohortes.findIndex(c=>c.cohorte===coh); if(k>=0)p.cohortes[k]=ch; else p.cohortes.push(ch); p.cohortes.sort((x,y)=>x.inicio<y.inicio?-1:1)}
+  else state.programas.push({sigla:sig,nombre:$('fn').value,color:fcolor,visible:true,cohortes:[ch]});
+  closeOv('progov');render();save('Guardado');};
+$('delb').onclick=()=>{const p=state.programas[cur];if(confirmDel(p)){state.programas.splice(cur,1);closeOv('progov');render();save(`${p.sigla} eliminado`)}};
+function confirmDel(p){const b=$('delb');if(b.dataset.arm){delete b.dataset.arm;b.textContent='Eliminar';return true}b.dataset.arm=1;b.textContent=`¿Seguro? Eliminar ${p.sigla}`;return false}
+$('yp').onclick=()=>{year--;render()};$('yn').onclick=()=>{year++;render()};
+load();
+</script>
+</body>
+</html>

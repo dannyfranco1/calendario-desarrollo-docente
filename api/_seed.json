@@ -1,0 +1,490 @@
+{
+ "programas": [
+  {
+   "sigla": "Inducc.",
+   "nombre": "Taller de Inducción Docente",
+   "color": "#2BA39A",
+   "cohortes": [
+    {
+     "cohorte": "2026-1",
+     "inicio": "2026-03-30",
+     "cierre": "2026-05-03",
+     "modulos": [
+      {
+       "nombre": "Módulo 1",
+       "inicio": "2026-03-30",
+       "fin": "2026-04-05"
+      },
+      {
+       "nombre": "Módulo 2",
+       "inicio": "2026-04-06",
+       "fin": "2026-04-12"
+      },
+      {
+       "nombre": "Módulo 3",
+       "inicio": "2026-04-13",
+       "fin": "2026-04-19"
+      },
+      {
+       "nombre": "Módulo 4",
+       "inicio": "2026-04-20",
+       "fin": "2026-04-26"
+      },
+      {
+       "nombre": "Módulo 5",
+       "inicio": "2026-04-27",
+       "fin": "2026-05-03"
+      }
+     ],
+     "sesiones": []
+    },
+    {
+     "cohorte": "2026-2",
+     "inicio": "2026-08-31",
+     "cierre": "2026-10-11",
+     "modulos": [
+      {
+       "nombre": "Módulo 1",
+       "inicio": "2026-08-31",
+       "fin": "2026-09-06"
+      },
+      {
+       "nombre": "Módulo 2",
+       "inicio": "2026-09-07",
+       "fin": "2026-09-13"
+      },
+      {
+       "nombre": "Módulo 3",
+       "inicio": "2026-09-21",
+       "fin": "2026-09-27"
+      },
+      {
+       "nombre": "Módulo 4",
+       "inicio": "2026-09-28",
+       "fin": "2026-10-04"
+      },
+      {
+       "nombre": "Módulo 5",
+       "inicio": "2026-10-05",
+       "fin": "2026-10-11"
+      }
+     ],
+     "sesiones": []
+    }
+   ],
+   "visible": true
+  },
+  {
+   "sigla": "DDES",
+   "nombre": "Diplomado en Docencia en Educación Superior",
+   "color": "#E8845C",
+   "cohortes": [
+    {
+     "cohorte": "2026-1",
+     "inicio": "2026-04-13",
+     "cierre": "2026-07-26",
+     "modulos": [
+      {
+       "nombre": "Módulo 1",
+       "inicio": "2026-04-13",
+       "fin": "2026-05-10"
+      },
+      {
+       "nombre": "Módulo 2",
+       "inicio": "2026-05-11",
+       "fin": "2026-06-07"
+      },
+      {
+       "nombre": "Módulo 3",
+       "inicio": "2026-06-08",
+       "fin": "2026-07-05"
+      },
+      {
+       "nombre": "Módulo 4",
+       "inicio": "2026-07-06",
+       "fin": "2026-07-26"
+      }
+     ],
+     "sesiones": [
+      "2026-04-13",
+      "2026-04-27",
+      "2026-05-11",
+      "2026-05-25",
+      "2026-06-08",
+      "2026-06-22",
+      "2026-07-06",
+      "2026-07-20"
+     ]
+    },
+    {
+     "cohorte": "2026-2",
+     "inicio": "2026-08-17",
+     "cierre": "2026-12-13",
+     "modulos": [
+      {
+       "nombre": "Módulo 1",
+       "inicio": "2026-08-17",
+       "fin": "2026-09-13"
+      },
+      {
+       "nombre": "Módulo 2",
+       "inicio": "2026-09-21",
+       "fin": "2026-10-18"
+      },
+      {
+       "nombre": "Módulo 3",
+       "inicio": "2026-10-19",
+       "fin": "2026-11-15"
+      },
+      {
+       "nombre": "Módulo 4",
+       "inicio": "2026-11-16",
+       "fin": "2026-12-13"
+      }
+     ],
+     "sesiones": [
+      "2026-08-17",
+      "2026-08-31",
+      "2026-09-21",
+      "2026-10-05",
+      "2026-10-19",
+      "2026-11-02",
+      "2026-11-16",
+      "2026-11-30"
+     ]
+    }
+   ],
+   "visible": true
+  },
+  {
+   "sigla": "DIDeIA",
+   "nombre": "Diplomado en Innovación Digital e IA",
+   "color": "#8B6CC7",
+   "cohortes": [
+    {
+     "cohorte": "2025-2",
+     "inicio": "2026-03-09",
+     "cierre": "2026-04-05",
+     "modulos": [
+      {
+       "nombre": "Módulo 4",
+       "inicio": "2026-03-09",
+       "fin": "2026-04-05"
+      }
+     ],
+     "sesiones": [
+      "2026-03-11",
+      "2026-03-18",
+      "2026-03-25",
+      "2026-04-01"
+     ]
+    },
+    {
+     "cohorte": "2026-1",
+     "inicio": "2026-04-13",
+     "cierre": "2026-07-26",
+     "modulos": [
+      {
+       "nombre": "Módulo 1",
+       "inicio": "2026-04-13",
+       "fin": "2026-05-10"
+      },
+      {
+       "nombre": "Módulo 2",
+       "inicio": "2026-05-11",
+       "fin": "2026-06-07"
+      },
+      {
+       "nombre": "Módulo 3",
+       "inicio": "2026-06-08",
+       "fin": "2026-07-05"
+      },
+      {
+       "nombre": "Módulo 4",
+       "inicio": "2026-07-06",
+       "fin": "2026-07-26"
+      }
+     ],
+     "sesiones": [
+      "2026-04-15",
+      "2026-04-22",
+      "2026-04-29",
+      "2026-05-06",
+      "2026-05-13",
+      "2026-05-20",
+      "2026-05-27",
+      "2026-06-03",
+      "2026-06-10",
+      "2026-06-17",
+      "2026-06-24",
+      "2026-07-01",
+      "2026-07-08",
+      "2026-07-15",
+      "2026-07-22"
+     ]
+    },
+    {
+     "cohorte": "2026-2",
+     "inicio": "2026-08-17",
+     "cierre": "2026-12-20",
+     "modulos": [
+      {
+       "nombre": "Módulo 1",
+       "inicio": "2026-08-17",
+       "fin": "2026-09-13"
+      },
+      {
+       "nombre": "Módulo 2",
+       "inicio": "2026-09-21",
+       "fin": "2026-10-18"
+      },
+      {
+       "nombre": "Módulo 3",
+       "inicio": "2026-10-26",
+       "fin": "2026-11-22"
+      },
+      {
+       "nombre": "Módulo 4",
+       "inicio": "2026-11-23",
+       "fin": "2026-12-20"
+      }
+     ],
+     "sesiones": [
+      "2026-08-19",
+      "2026-08-26",
+      "2026-09-02",
+      "2026-09-09",
+      "2026-09-23",
+      "2026-09-30",
+      "2026-10-07",
+      "2026-10-14",
+      "2026-10-21",
+      "2026-10-28",
+      "2026-11-04",
+      "2026-11-11",
+      "2026-11-18",
+      "2026-11-25",
+      "2026-12-02",
+      "2026-12-09",
+      "2026-12-16"
+     ]
+    }
+   ],
+   "visible": true
+  },
+  {
+   "sigla": "DIES",
+   "nombre": "Diplomado en Investigación en Educación Superior",
+   "color": "#6E9B3A",
+   "cohortes": [
+    {
+     "cohorte": "2026-2",
+     "inicio": "2026-08-17",
+     "cierre": "2026-12-20",
+     "modulos": [
+      {
+       "nombre": "Módulo 1",
+       "inicio": "2026-08-17",
+       "fin": "2026-09-13"
+      },
+      {
+       "nombre": "Módulo 2",
+       "inicio": "2026-09-21",
+       "fin": "2026-10-18"
+      },
+      {
+       "nombre": "Módulo 3",
+       "inicio": "2026-11-02",
+       "fin": "2026-11-22"
+      },
+      {
+       "nombre": "Módulo 4",
+       "inicio": "2026-11-23",
+       "fin": "2026-12-20"
+      }
+     ],
+     "sesiones": [
+      "2026-08-20",
+      "2026-09-03",
+      "2026-09-24",
+      "2026-10-08",
+      "2026-10-22",
+      "2026-11-05",
+      "2026-11-26",
+      "2026-12-10"
+     ]
+    }
+   ],
+   "visible": true
+  },
+  {
+   "sigla": "CFT Aysén",
+   "nombre": "DIDeIA CFT Aysén",
+   "color": "#3D8BE0",
+   "cohortes": [
+    {
+     "cohorte": "2026-2",
+     "inicio": "2026-09-21",
+     "cierre": "2027-01-31",
+     "modulos": [
+      {
+       "nombre": "Módulo 1",
+       "inicio": "2026-09-21",
+       "fin": "2026-10-18"
+      },
+      {
+       "nombre": "Módulo 2",
+       "inicio": "2026-10-19",
+       "fin": "2026-11-15"
+      },
+      {
+       "nombre": "Módulo 3",
+       "inicio": "2026-11-16",
+       "fin": "2026-12-13"
+      },
+      {
+       "nombre": "Módulo 4",
+       "inicio": "2027-01-04",
+       "fin": "2027-01-31"
+      }
+     ],
+     "sesiones": [
+      "2026-09-23",
+      "2026-09-30",
+      "2026-10-07",
+      "2026-10-14",
+      "2026-10-21",
+      "2026-10-28",
+      "2026-11-04",
+      "2026-11-11",
+      "2026-11-19",
+      "2026-11-26",
+      "2026-12-03",
+      "2026-12-10",
+      "2027-01-07",
+      "2027-01-14",
+      "2027-01-21",
+      "2027-01-28"
+     ]
+    }
+   ],
+   "visible": true
+  },
+  {
+   "sigla": "Género",
+   "nombre": "Curso Género",
+   "color": "#4A55A8",
+   "cohortes": [
+    {
+     "cohorte": "2026-2",
+     "inicio": "2026-08-17",
+     "cierre": "2026-10-11",
+     "modulos": [
+      {
+       "nombre": "Curso Género",
+       "inicio": "2026-08-17",
+       "fin": "2026-10-04"
+      }
+     ],
+     "sesiones": [
+      "2026-08-17",
+      "2026-08-24",
+      "2026-08-31",
+      "2026-09-07",
+      "2026-09-21",
+      "2026-09-28",
+      "2026-10-05"
+     ]
+    }
+   ],
+   "visible": true
+  }
+ ],
+ "feriados": [
+  {
+   "fecha": "2026-01-01",
+   "nombre": "Año Nuevo"
+  },
+  {
+   "fecha": "2026-04-03",
+   "nombre": "Viernes Santo"
+  },
+  {
+   "fecha": "2026-04-04",
+   "nombre": "Sábado Santo"
+  },
+  {
+   "fecha": "2026-05-01",
+   "nombre": "Día del Trabajo"
+  },
+  {
+   "fecha": "2026-05-21",
+   "nombre": "Glorias Navales"
+  },
+  {
+   "fecha": "2026-06-21",
+   "nombre": "Día de los Pueblos Indígenas"
+  },
+  {
+   "fecha": "2026-06-29",
+   "nombre": "San Pedro y San Pablo"
+  },
+  {
+   "fecha": "2026-07-16",
+   "nombre": "Virgen del Carmen"
+  },
+  {
+   "fecha": "2026-08-15",
+   "nombre": "Asunción de la Virgen"
+  },
+  {
+   "fecha": "2026-09-18",
+   "nombre": "Independencia Nacional"
+  },
+  {
+   "fecha": "2026-09-19",
+   "nombre": "Glorias del Ejército"
+  },
+  {
+   "fecha": "2026-10-12",
+   "nombre": "Encuentro de Dos Mundos"
+  },
+  {
+   "fecha": "2026-10-31",
+   "nombre": "Iglesias Evangélicas"
+  },
+  {
+   "fecha": "2026-11-01",
+   "nombre": "Todos los Santos"
+  },
+  {
+   "fecha": "2026-12-08",
+   "nombre": "Inmaculada Concepción"
+  },
+  {
+   "fecha": "2026-12-25",
+   "nombre": "Navidad"
+  },
+  {
+   "fecha": "2027-01-01",
+   "nombre": "Año Nuevo"
+  }
+ ],
+ "recesos": [
+  {
+   "nombre": "Semana Vida Universitaria",
+   "inicio": "2026-05-18",
+   "fin": "2026-05-24"
+  },
+  {
+   "nombre": "Receso Invierno",
+   "inicio": "2026-07-27",
+   "fin": "2026-08-02"
+  },
+  {
+   "nombre": "Fiestas Patrias",
+   "inicio": "2026-09-14",
+   "fin": "2026-09-20"
+  }
+ ]
+}
