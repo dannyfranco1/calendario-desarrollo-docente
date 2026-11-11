@@ -126,7 +126,11 @@ input:focus,select:focus{outline:2px solid #C8D6E8;border-color:#8FA9C9}
 .out{display:none;border:1px solid var(--line);background:var(--panel);border-radius:10px;padding:8px 12px;color:var(--muted);font-size:13px}
 body.edit .out{display:inline-block}
 th.prog .eye{display:none;border:0;background:none;color:var(--muted);padding:2px;line-height:0}
-body.edit th.prog .eye{display:inline-block}
+body.edit.admin th.prog .eye{display:inline-block}
+#usrb{display:none}
+body.edit.admin #usrb{display:inline-block}
+.ubox{padding:14px}
+.wk label .dot{width:9px;height:9px;border-radius:50%;display:inline-block}
 th.prog.hid .h,td.pc.hid{opacity:.35}
 #gate{position:fixed;inset:0;background:var(--bg);display:none;align-items:center;justify-content:center;z-index:70;padding:16px}
 #gate .card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:28px;width:min(380px,100%);box-shadow:0 12px 40px rgba(20,30,50,.08)}
@@ -148,6 +152,7 @@ th.prog.hid .h,td.pc.hid{opacity:.35}
     <span class="saving" id="saving"></span>
     <div class="spacer"></div>
     <div class="yr"><button id="yp" aria-label="Año anterior">‹</button><b id="yl">2026</b><button id="yn" aria-label="Año siguiente">›</button></div>
+    <button class="out" id="usrb" title="Personas y permisos">Personas</button>
     <button class="out" id="outb" title="Cerrar sesión">Salir</button>
     <button class="lock" id="lockb" title="Modo edición" aria-label="Modo edición">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path id="shackle" d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
@@ -185,6 +190,12 @@ th.prog.hid .h,td.pc.hid{opacity:.35}
   </div>
   <div class="act"><button class="btn dng l" id="delb" style="display:none">Eliminar</button><button class="btn" onclick="closeOv('progov')">Cancelar</button><button class="btn p" id="saveb">Guardar</button></div>
 </div></div>
+<div class="ov" id="usrov"><div class="modal">
+  <h2>Personas y permisos</h2><p class="d">Cada persona entra con su usuario y contraseña, y solo ve y edita los programas que le marques. Las fechas, feriados y recesos los ven todos.</p>
+  <div id="ulist"></div>
+  <button class="btn sm" id="addu">+ Agregar persona</button>
+  <div class="act"><button class="btn" onclick="closeOv('usrov')">Cerrar</button></div>
+</div></div>
 <div class="toast" id="toast"></div>
 <div id="gate"><form class="card" id="gatef">
   <h1>Calendario Desarrollo Docente</h1><p>Ingresa con tu usuario y contraseña.</p>
@@ -201,7 +212,7 @@ const MESES=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','
 const MESL=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
 const DIAS=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
 const DIASL=['lunes','martes','miércoles','jueves','viernes','sábado','domingo'];
-let state=null; let year=new Date().getFullYear(); if(new Date().getMonth()<2) year--; let editing=false;
+let state=null; let year=new Date().getFullYear(); if(new Date().getMonth()<2) year--; let editing=false; let me=null, rev=null; const isAdmin=()=>!!me&&me.role==='admin';
 const iso=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
 const parse=s=>{const[a,b,c]=s.split('-').map(Number);return new Date(a,b-1,c)};
 const add=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x};
@@ -212,15 +223,17 @@ async function load(){
   const r=await fetch('/api/data',{cache:'no-store'});
   if(r.status===401){$('gate').style.display='flex';$('lu').focus();return}
   const j=await r.json(); if(!r.ok){toast('Error: '+(j.error||r.status));return}
-  state=j.data; state.programas.forEach(p=>{if(p.visible===undefined)p.visible=true});
+  state=j.data; rev=j.rev; me=j.me; document.body.classList.toggle('admin',isAdmin()); state.programas.forEach(p=>{if(p.visible===undefined)p.visible=true});
   $('gate').style.display='none'; render();
   const tr=$('todayrow');if(tr){$('board').scrollTop=tr.offsetTop-160}
 }
 async function save(msg){
   $('saving').textContent='Guardando…';
-  try{const r=await fetch('/api/data',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({data:state})});
+  try{const r=await fetch('/api/data',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({data:state,rev})});
     const j=await r.json(); if(r.status===401){$('gate').style.display='flex';return}
+    if(r.status===409){$('saving').textContent='';await load();toast('Otra persona guardó cambios recién. Recargué el calendario: repite tu último cambio.');return}
     if(!r.ok) throw new Error(j.error||r.status);
+    rev=j.rev; if(j.ids) j.ids.forEach((id,k)=>{if(state.programas[k])state.programas[k].id=id});
     $('saving').textContent='Guardado'; if(msg) toast(msg); setTimeout(()=>$('saving').textContent='',2000)}
   catch(e){$('saving').textContent='';toast('No se pudo guardar: '+e.message)}
 }
@@ -246,7 +259,7 @@ function render(){ if(!state) return;
   vis.filter(o=>o.p.visible!==false).forEach(({p})=>p.cohortes.forEach(c=>c.sesiones.forEach(s=>(ses[s]=ses[s]||[]).push(p.color))));
   let h=`<table><thead><tr><th class="mes fz" data-col="0">Mes</th>${DIAS.map((d,k)=>`<th class="fz" data-col="${k+1}">${d}</th>`).join('')}<th class="sep fz" data-col="8"></th><th class="hito fz fzlast" data-col="9" style="text-align:left;padding-left:8px">Hitos</th>`+
     vis.map(({p,i})=>`<th class="prog ${p.visible===false?'hid':''}" title="${p.nombre}"><div class="h"><button class="eye" onclick="toggleVis(${i})" title="${p.visible===false?'Mostrar':'Ocultar'} en la vista principal">${p.visible===false?'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.9 17.9A10.4 10.4 0 0 1 12 19C5 19 1 12 1 12a18.6 18.6 0 0 1 5.1-5.9M9.9 5.2A9.7 9.7 0 0 1 12 5c7 0 11 7 11 7a18.5 18.5 0 0 1-2.2 3.2M14.1 14.1a3 3 0 1 1-4.2-4.2"/><path d="M1 1l22 22"/></svg>':'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>'}</button><i style="background:${p.color}"></i>${p.sigla}<button class="ed" onclick="openProg(${i})" title="Editar">✎</button></div></th>`).join('')+
-    `<th class="add"><button class="plus" onclick="openProg(-1)" style="${editing?'':'display:none'}" title="Agregar programa">+</button></th></tr></thead><tbody>`;
+    `<th class="add"><button class="plus" onclick="openProg(-1)" style="${editing&&isAdmin()?'':'display:none'}" title="Agregar programa">+</button></th></tr></thead><tbody>`;
   let lastM=-1;
   const W=weeks();
   W.forEach((mon,wi)=>{
@@ -331,10 +344,10 @@ function toast(t){const e=$('toast');e.textContent=t;e.style.display='block';cle
 function closeOv(id){$(id).classList.remove('show')}
 $('lockb').onclick=()=>{editing=!editing;document.body.classList.toggle('edit',editing);$('lockb').classList.toggle('on',editing);render();toast(editing?'Modo edición activo':'Modo edición cerrado')};
 $('outb').onclick=async()=>{await fetch('/api/logout',{method:'POST'});location.reload()};
-function toggleVis(i){const p=state.programas[i];p.visible=p.visible===false;render();save(p.visible?`${p.sigla} visible`:`${p.sigla} oculto en la vista principal`)}
+function toggleVis(i){if(!isAdmin())return;const p=state.programas[i];p.visible=p.visible===false;render();save(p.visible?`${p.sigla} visible`:`${p.sigla} oculto en la vista principal`)}
 let cur=-1, fdates=[], fmods=[], fcolor=PALETTE[0];
 function openProg(i){
-  if(!editing)return;
+  if(!editing||(i<0&&!isAdmin()))return;
   cur=i; const p=i>=0?state.programas[i]:null; const c=p?p.cohortes[p.cohortes.length-1]:null;
   $('pt').textContent=p?`Editar ${p.sigla}`:'Nuevo programa';
   $('delb').textContent='Eliminar';delete $('delb').dataset.arm;
@@ -346,7 +359,7 @@ function openProg(i){
   $('fsw').innerHTML=PALETTE.map(x=>`<button style="background:${x}" class="${x===fcolor?'on':''}" data-c="${x}"></button>`).join('');
   document.querySelectorAll('#fsw button').forEach(b=>b.onclick=()=>{fcolor=b.dataset.c;document.querySelectorAll('#fsw button').forEach(o=>o.classList.toggle('on',o===b))});
   $('fwk').innerHTML=DIAS.slice(0,6).map((d,k)=>`<label><input type="checkbox" value="${k}">${d}</label>`).join('');
-  $('delb').style.display=p?'inline-block':'none';
+  $('delb').style.display=p&&isAdmin()?'inline-block':'none';
   drawDates();drawMods();$('progov').classList.add('show');
 }
 function drawDates(){fdates.sort();$('fdates').innerHTML=fdates.map((s,k)=>{const d=parse(s);return `<span>${DIAS[(d.getDay()+6)%7]} ${d.getDate()} ${MESES[d.getMonth()]}<b onclick="fdates.splice(${k},1);drawDates()">×</b></span>`}).join('')||'<span style="background:none;color:var(--muted);padding:0">Aún no hay sesiones.</span>'}
@@ -366,8 +379,36 @@ $('saveb').onclick=()=>{
     const k=p.cohortes.findIndex(c=>c.cohorte===coh); if(k>=0)p.cohortes[k]=ch; else p.cohortes.push(ch); p.cohortes.sort((x,y)=>x.inicio<y.inicio?-1:1)}
   else state.programas.push({sigla:sig,nombre:$('fn').value,color:fcolor,visible:true,cohortes:[ch]});
   closeOv('progov');render();save('Guardado');};
-$('delb').onclick=()=>{const p=state.programas[cur];if(confirmDel(p)){state.programas.splice(cur,1);closeOv('progov');render();save(`${p.sigla} eliminado`)}};
+$('delb').onclick=()=>{if(!isAdmin())return;const p=state.programas[cur];if(confirmDel(p)){state.programas.splice(cur,1);closeOv('progov');render();save(`${p.sigla} eliminado`)}};
 function confirmDel(p){const b=$('delb');if(b.dataset.arm){delete b.dataset.arm;b.textContent='Eliminar';return true}b.dataset.arm=1;b.textContent=`¿Seguro? Eliminar ${p.sigla}`;return false}
+// ---- personas y permisos (solo admin)
+let users=[];
+$('usrb').onclick=async()=>{
+  const r=await fetch('/api/users',{cache:'no-store'});const j=await r.json().catch(()=>({}));
+  if(!r.ok)return toast(j.error||'No se pudo cargar la lista de personas');
+  users=j.users.map(u=>({...u,programas:u.programas||[],password:'',nuevo:false}));drawUsers();$('usrov').classList.add('show')};
+function drawUsers(){
+  $('ulist').innerHTML=users.map((u,k)=>`<div class="mbox ubox"><div class="f">
+    <div><label>Nombre</label><input value="${esc(u.nombre)}" oninput="users[${k}].nombre=this.value" placeholder="Ej. Patricia Luengo"></div>
+    <div><label>Usuario</label><input value="${esc(u.username)}" ${u.nuevo?'':'disabled'} oninput="users[${k}].username=this.value" placeholder="Ej. patricia" autocapitalize="none" autocomplete="off"></div>
+    <div class="full"><label>${u.nuevo?'Contraseña':'Cambiar contraseña'}</label><input value="${esc(u.password)}" oninput="users[${k}].password=this.value" placeholder="${u.nuevo?'Mínimo 6 caracteres':'Déjala en blanco para mantener la actual'}" autocomplete="off"></div></div>
+    <label style="margin-top:12px">Programas que puede ver y editar</label>
+    <div class="wk">${state.programas.filter(p=>p.id).map(p=>`<label><input type="checkbox" ${u.programas.includes(p.id)?'checked':''} onchange="togP(${k},'${p.id}',this.checked)"><i class="dot" style="background:${p.color}"></i>${esc(p.sigla)}</label>`).join('')}</div>
+    <div class="act" style="margin-top:12px"><button class="btn dng sm l" onclick="delUser(${k},this)">Eliminar</button><button class="btn p sm" onclick="saveUser(${k})">Guardar</button></div></div>`).join('')
+    ||'<p class="d">Aún no has agregado personas.</p>';
+}
+function togP(k,id,on){const u=users[k];u.programas=u.programas.filter(x=>x!==id);if(on)u.programas.push(id)}
+$('addu').onclick=()=>{users.push({username:'',nombre:'',password:'',programas:[],nuevo:true});drawUsers()};
+async function saveUser(k){const u=users[k];
+  const r=await fetch('/api/users',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u.username,nombre:u.nombre,password:u.password,programas:u.programas,nuevo:u.nuevo})});
+  const j=await r.json().catch(()=>({}));if(!r.ok)return toast(j.error||'No se pudo guardar');
+  u.username=u.username.trim().toLowerCase();u.nuevo=false;u.password='';drawUsers();toast(`Permisos de ${u.nombre||u.username} guardados`)}
+async function delUser(k,b){const u=users[k];
+  if(u.nuevo){users.splice(k,1);return drawUsers()}
+  if(!b.dataset.arm){b.dataset.arm=1;b.textContent='¿Seguro? Eliminar';return}
+  const r=await fetch('/api/users?username='+encodeURIComponent(u.username),{method:'DELETE'});
+  if(!r.ok)return toast('No se pudo eliminar');
+  users.splice(k,1);drawUsers();toast(`${u.nombre||u.username} ya no tiene acceso`)}
 $('yp').onclick=()=>{year--;render()};$('yn').onclick=()=>{year++;render()};
 load();
 </script>
