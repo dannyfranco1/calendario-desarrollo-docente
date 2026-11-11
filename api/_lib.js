@@ -10,8 +10,8 @@ function secret() {
 function sign(payload) {
   return crypto.createHmac('sha256', secret()).update(payload).digest('base64url');
 }
-// role: 'admin' (usuario de las variables de entorno) o 'editor' (usuarios creados por el admin).
-// v: huella de la contraseña del editor; si el admin la cambia, la sesión anterior deja de servir.
+// role: 'admin' (APP_USER / APP_PASSWORD) o 'editor' (personas definidas en Vercel con variables CLAVE_NOMBRE).
+// v: huella de la contraseña del editor; si se cambia en Vercel, la sesión anterior deja de servir.
 export function makeToken(u, role = 'admin', v = '') {
   const exp = Math.floor(Date.now() / 1000) + MAX_AGE;
   const payload = JSON.stringify({ u, r: role, v, exp });
@@ -43,10 +43,25 @@ export async function auth(req, sql) {
     if (s.u !== process.env.APP_USER) return null;
     return { user: s.u, role: 'admin', nombre: '', programas: null };
   }
-  const rows = await sql`SELECT username, nombre, pass_hash, programas FROM app_users WHERE username = ${s.u}`;
-  if (!rows.length || passVersion(rows[0].pass_hash) !== s.v) return null;
-  return { user: rows[0].username, role: 'editor', nombre: rows[0].nombre, programas: rows[0].programas || [] };
+  const pw = envUsers()[s.u];
+  if (!pw || passVersion(pw) !== s.v) return null;
+  const rows = await sql`SELECT programas FROM app_permisos WHERE username = ${s.u}`;
+  return { user: s.u, role: 'editor', nombre: displayName(s.u), programas: rows.length ? (rows[0].programas || []) : [] };
 }
+// Personas con acceso: una variable de entorno por persona, CLAVE_NOMBRE = su contraseña.
+// El usuario es el nombre en minúsculas (CLAVE_PATRICIA -> "patricia"). Solo se administran en Vercel.
+export function envUsers() {
+  const out = {}; const admin = String(process.env.APP_USER || '').toLowerCase();
+  for (const [k, v] of Object.entries(process.env)) {
+    const m = /^CLAVE_([A-Z0-9_]+)$/.exec(k);
+    if (!m || !v) continue;
+    const u = m[1].toLowerCase();
+    if (u !== admin) out[u] = v;
+  }
+  return out;
+}
+export function displayName(u) { return u.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '); }
+export function passVersion(pw) { return sign('pv:' + pw).slice(0, 12); }
 export function sessionCookie(token) {
   return `${COOKIE}=${token}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${token ? MAX_AGE : 0}`;
 }
@@ -54,16 +69,6 @@ export function safeEqual(a, b) {
   const x = Buffer.from(String(a)), y = Buffer.from(String(b));
   return x.length === y.length && crypto.timingSafeEqual(x, y);
 }
-export function hashPassword(pw) {
-  const salt = crypto.randomBytes(16).toString('hex');
-  return `scrypt$${salt}$${crypto.scryptSync(String(pw), salt, 32).toString('hex')}`;
-}
-export function checkPassword(pw, stored) {
-  const [, salt, hash] = String(stored).split('$');
-  if (!salt || !hash) return false;
-  return safeEqual(crypto.scryptSync(String(pw), salt, 32).toString('hex'), hash);
-}
-export function passVersion(stored) { return String(stored).slice(-10); }
 export function newId() { return 'p_' + crypto.randomBytes(5).toString('hex'); }
 // Cada programa necesita un id estable para poder asignarle permisos. Devuelve true si tuvo que crear alguno.
 export function ensureIds(data) {
@@ -81,5 +86,5 @@ export function db() {
 }
 export async function ensureTable(sql) {
   await sql`CREATE TABLE IF NOT EXISTS app_state (id INT PRIMARY KEY, data JSONB NOT NULL, updated_at TIMESTAMPTZ NOT NULL DEFAULT now())`;
-  await sql`CREATE TABLE IF NOT EXISTS app_users (username TEXT PRIMARY KEY, nombre TEXT NOT NULL DEFAULT '', pass_hash TEXT NOT NULL, programas JSONB NOT NULL DEFAULT '[]'::jsonb, updated_at TIMESTAMPTZ NOT NULL DEFAULT now())`;
+  await sql`CREATE TABLE IF NOT EXISTS app_permisos (username TEXT PRIMARY KEY, programas JSONB NOT NULL DEFAULT '[]'::jsonb, updated_at TIMESTAMPTZ NOT NULL DEFAULT now())`;
 }

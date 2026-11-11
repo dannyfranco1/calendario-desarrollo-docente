@@ -191,9 +191,8 @@ th.prog.hid .h,td.pc.hid{opacity:.35}
   <div class="act"><button class="btn dng l" id="delb" style="display:none">Eliminar</button><button class="btn" onclick="closeOv('progov')">Cancelar</button><button class="btn p" id="saveb">Guardar</button></div>
 </div></div>
 <div class="ov" id="usrov"><div class="modal">
-  <h2>Personas y permisos</h2><p class="d">Cada persona entra con su usuario y contraseña, y solo ve y edita los programas que le marques. Las fechas, feriados y recesos los ven todos.</p>
+  <h2>Personas y permisos</h2><p class="d">Marca qué programas ve y edita cada persona. Las fechas, feriados y recesos los ven todos. Las personas y sus contraseñas se definen en Vercel.</p>
   <div id="ulist"></div>
-  <button class="btn sm" id="addu">+ Agregar persona</button>
   <div class="act"><button class="btn" onclick="closeOv('usrov')">Cerrar</button></div>
 </div></div>
 <div class="toast" id="toast"></div>
@@ -381,34 +380,25 @@ $('saveb').onclick=()=>{
   closeOv('progov');render();save('Guardado');};
 $('delb').onclick=()=>{if(!isAdmin())return;const p=state.programas[cur];if(confirmDel(p)){state.programas.splice(cur,1);closeOv('progov');render();save(`${p.sigla} eliminado`)}};
 function confirmDel(p){const b=$('delb');if(b.dataset.arm){delete b.dataset.arm;b.textContent='Eliminar';return true}b.dataset.arm=1;b.textContent=`¿Seguro? Eliminar ${p.sigla}`;return false}
-// ---- personas y permisos (solo admin)
+// ---- personas y permisos (solo admin). Las personas y sus claves se definen en Vercel.
 let users=[];
 $('usrb').onclick=async()=>{
   const r=await fetch('/api/users',{cache:'no-store'});const j=await r.json().catch(()=>({}));
   if(!r.ok)return toast(j.error||'No se pudo cargar la lista de personas');
-  users=j.users.map(u=>({...u,programas:u.programas||[],password:'',nuevo:false}));drawUsers();$('usrov').classList.add('show')};
+  users=j.users;drawUsers();$('usrov').classList.add('show')};
 function drawUsers(){
-  $('ulist').innerHTML=users.map((u,k)=>`<div class="mbox ubox"><div class="f">
-    <div><label>Nombre</label><input value="${esc(u.nombre)}" oninput="users[${k}].nombre=this.value" placeholder="Ej. Patricia Luengo"></div>
-    <div><label>Usuario</label><input value="${esc(u.username)}" ${u.nuevo?'':'disabled'} oninput="users[${k}].username=this.value" placeholder="Ej. patricia" autocapitalize="none" autocomplete="off"></div>
-    <div class="full"><label>${u.nuevo?'Contraseña':'Cambiar contraseña'}</label><input value="${esc(u.password)}" oninput="users[${k}].password=this.value" placeholder="${u.nuevo?'Mínimo 6 caracteres':'Déjala en blanco para mantener la actual'}" autocomplete="off"></div></div>
+  $('ulist').innerHTML=users.map((u,k)=>`<div class="mbox ubox">
+    <div style="display:flex;align-items:baseline;gap:8px"><b>${esc(u.nombre)}</b><span style="color:var(--muted);font-size:12.5px">usuario: ${esc(u.username)}</span></div>
     <label style="margin-top:12px">Programas que puede ver y editar</label>
     <div class="wk">${state.programas.filter(p=>p.id).map(p=>`<label><input type="checkbox" ${u.programas.includes(p.id)?'checked':''} onchange="togP(${k},'${p.id}',this.checked)"><i class="dot" style="background:${p.color}"></i>${esc(p.sigla)}</label>`).join('')}</div>
-    <div class="act" style="margin-top:12px"><button class="btn dng sm l" onclick="delUser(${k},this)">Eliminar</button><button class="btn p sm" onclick="saveUser(${k})">Guardar</button></div></div>`).join('')
-    ||'<p class="d">Aún no has agregado personas.</p>';
+    <div class="act" style="margin-top:12px"><button class="btn p sm" onclick="saveUser(${k})">Guardar</button></div></div>`).join('')
+    ||'<p class="d">Todavía no hay personas. Se agregan en Vercel, con una variable CLAVE_NOMBRE por persona.</p>';
 }
 function togP(k,id,on){const u=users[k];u.programas=u.programas.filter(x=>x!==id);if(on)u.programas.push(id)}
-$('addu').onclick=()=>{users.push({username:'',nombre:'',password:'',programas:[],nuevo:true});drawUsers()};
 async function saveUser(k){const u=users[k];
-  const r=await fetch('/api/users',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u.username,nombre:u.nombre,password:u.password,programas:u.programas,nuevo:u.nuevo})});
+  const r=await fetch('/api/users',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u.username,programas:u.programas})});
   const j=await r.json().catch(()=>({}));if(!r.ok)return toast(j.error||'No se pudo guardar');
-  u.username=u.username.trim().toLowerCase();u.nuevo=false;u.password='';drawUsers();toast(`Permisos de ${u.nombre||u.username} guardados`)}
-async function delUser(k,b){const u=users[k];
-  if(u.nuevo){users.splice(k,1);return drawUsers()}
-  if(!b.dataset.arm){b.dataset.arm=1;b.textContent='¿Seguro? Eliminar';return}
-  const r=await fetch('/api/users?username='+encodeURIComponent(u.username),{method:'DELETE'});
-  if(!r.ok)return toast('No se pudo eliminar');
-  users.splice(k,1);drawUsers();toast(`${u.nombre||u.username} ya no tiene acceso`)}
+  toast(`Permisos de ${u.nombre} guardados`)}
 $('yp').onclick=()=>{year--;render()};$('yn').onclick=()=>{year++;render()};
 load();
 </script>
